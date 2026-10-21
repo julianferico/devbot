@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevBot – AI Asisten Developer Tools SaaS</title>
+<style>
+  :root {
+    --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b;
+    --border: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+    --chaos: #fef2f2; --chaos-b: #fecaca; --sol: #f0fdf4; --sol-b: #bbf7d0;
+    --user-bubble: #2563eb; --bot-bubble: #f1f5f9; --shadow: 0 4px 20px rgba(15,23,42,.06);
+  }
+  [data-theme="dark"] {
+    --bg: #0b1120; --surface: #111a2e; --text: #e2e8f0; --muted: #94a3b8;
+    --border: #1e293b; --primary: #3b82f6; --primary-soft: #1e3a8a;
+    --chaos: #2a1414; --chaos-b: #7f1d1d; --sol: #0f2a1a; --sol-b: #166534;
+    --user-bubble: #3b82f6; --bot-bubble: #1e293b; --shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; transition: background .3s, color .3s; }
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 56px 0; }
+  h2 { font-size: clamp(1.5rem, 4vw, 2rem); text-align: center; margin-bottom: 8px; }
+  .sub { text-align: center; color: var(--muted); margin-bottom: 32px; }
+
+  /* Topbar */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+  .brand { font-weight: 700; color: var(--primary); }
+  #themeBtn { background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 42px; height: 42px; font-size: 1.2rem; cursor: pointer; box-shadow: var(--shadow); transition: transform .2s; }
+  #themeBtn:hover { transform: rotate(20deg) scale(1.08); }
+
+  /* Hero */
+  .hero { text-align: center; padding: 40px 0 56px; }
+  .avatar { width: 96px; height: 96px; margin: 0 auto 16px; border-radius: 28px; background: linear-gradient(135deg, var(--primary), #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--shadow); }
+  .hero h1 { font-size: clamp(2.2rem, 7vw, 3.4rem); letter-spacing: -1px; }
+  .badge { display: inline-block; margin: 14px 0; padding: 6px 16px; border-radius: 999px; background: var(--primary-soft); border: 1px solid var(--border); font-size: .9rem; font-weight: 600; }
+  .badge::first-letter { animation: pulse 1.6s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .tagline { max-width: 600px; margin: 0 auto 24px; color: var(--muted); font-size: 1.1rem; }
+
+  .btn { display: inline-block; padding: 14px 28px; border-radius: 12px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; box-shadow: 0 6px 18px rgba(37,99,235,.35); transition: transform .2s, box-shadow .2s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(37,99,235,.45); }
+
+  /* Problem & Solution */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+  .chaos { background: var(--chaos); border-color: var(--chaos-b); }
+  .solution { background: var(--sol); border-color: var(--sol-b); }
+  .card h3 { margin-bottom: 14px; }
+  .card ul { list-style: none; }
+  .card li { padding: 8px 0; display: flex; gap: 10px; }
+
+  /* Capabilities */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cap .icon { font-size: 2rem; margin-bottom: 10px; }
+  .cap h3 { margin-bottom: 6px; }
+  .cap p { color: var(--muted); font-size: .95rem; }
+  .cap { transition: transform .25s; }
+  .cap:hover { transform: translateY(-5px); }
+
+  /* Chat */
+  .chat { max-width: 640px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+  .chat-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .chat-body { height: 320px; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: .95rem; animation: pop .3s ease; white-space: pre-line; }
+  .msg.user { align-self: flex-end; background: var(--user-bubble); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot { align-self: flex-start; background: var(--bot-bubble); border-bottom-left-radius: 4px; }
+  .hint { color: var(--muted); text-align: center; margin: auto; font-size: .9rem; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .typing { display: flex; gap: 5px; padding: 14px; }
+  .typing span { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+  .scenarios { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-top: 1px solid var(--border); }
+  .scenarios button { flex: 1 1 160px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; font-size: .85rem; transition: background .2s, color .2s; }
+  .scenarios button:hover:not(:disabled) { background: var(--primary); color: #fff; }
+  .scenarios button:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* Footer */
+  footer { text-align: center; padding: 56px 20px 32px; border-top: 1px solid var(--border); }
+  footer h2 { margin-bottom: 10px; }
+  footer p.built { margin-top: 32px; color: var(--muted); font-size: .85rem; }
+
+  @media (max-width: 760px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    section { padding: 40px 0; }
+    .chat-body { height: 300px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <span class="brand">🤖 DevBot</span>
+    <button id="themeBtn" aria-label="Ganti tema" title="Ganti tema">🌙</button>
+  </div>
+
+  <!-- 1. HERO -->
+  <header class="hero">
+    <div class="avatar">🤖</div>
+    <h1>DevBot</h1>
+    <div class="badge">🟢 Status: Active &amp; Ready 24/7</div>
+    <p class="tagline">Asisten AI untuk developer yang berfokus pada pengembangan tools SaaS sesuai kebutuhan client Anda.</p>
+    <a class="btn" href="#demo">Coba Simulasi ↓</a>
+  </header>
+
+  <!-- 2. PROBLEM & SOLUTION -->
+  <section id="problem">
+    <h2>Dari Masalah Menuju Solusi</h2>
+    <p class="sub">Mengapa pengembangan tools SaaS sering tidak tepat sasaran?</p>
+    <div class="grid2">
+      <div class="card chaos">
+        <h3>😵 The Chaos</h3>
+        <ul>
+          <li>❌ Kurang memahami kebutuhan client</li>
+          <li>❌ Tidak dapat menjawab dan memberikan solusi yang tepat</li>
+          <li>❌ Belum bisa membuat tools yang sesuai</li>
+        </ul>
+      </div>
+      <div class="card solution">
+        <h3>✨ The Solution</h3>
+        <ul>
+          <li>✅ Menyediakan aplikasi yang menjawab kebutuhan client</li>
+          <li>✅ Terhubung dengan GitHub dan tools pendukung pengembangan aplikasi lainnya</li>
+          <li>✅ Menghasilkan tools yang sesuai dan siap digunakan</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. CORE CAPABILITIES -->
+  <section id="capabilities">
+    <h2>Kemampuan Utama</h2>
+    <p class="sub">Tiga fondasi yang membuat DevBot andal.</p>
+    <div class="grid3">
+      <div class="card cap">
+        <div class="icon">🎯</div>
+        <h3>Memahami Kebutuhan Client</h3>
+        <p>Menggali kebutuhan dan menjawab pertanyaan client dengan solusi yang relevan dan tepat.</p>
+      </div>
+      <div class="card cap">
+        <div class="icon">🐙</div>
+        <h3>Integrasi GitHub</h3>
+        <p>Terhubung dengan GitHub untuk mengelola repository, kode, dan alur kerja pengembangan.</p>
+      </div>
+      <div class="card cap">
+        <div class="icon">🛠️</div>
+        <h3>Tools Pendukung Development</h3>
+        <p>Didukung berbagai tools pengembangan aplikasi untuk membangun tools SaaS yang sesuai.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. INTERACTIVE SIMULATION -->
+  <section id="demo">
+    <h2>Simulasi Interaktif</h2>
+    <p class="sub">Pilih skenario dan lihat DevBot bekerja.</p>
+    <div class="chat">
+      <div class="chat-head">🤖 DevBot <span style="color:var(--muted);font-weight:400;font-size:.85rem">• online</span></div>
+      <div class="chat-body" id="chatBody">
+        <div class="hint" id="hint">👇 Klik salah satu skenario di bawah untuk memulai</div>
+      </div>
+      <div class="scenarios" id="scenarios">
+        <button data-i="0">💡 Client belum jelas butuh apa</button>
+        <button data-i="1">❓ Tanya solusi teknis</button>
+        <button data-i="2">🧰 Minta dibuatkan tools</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 5. FOOTER & CTA -->
+<footer>
+  <div class="container">
+    <h2>Siap Membangun Tools SaaS Anda?</h2>
+    <p class="sub">Hubungi kami dan ceritakan kebutuhan Anda.</p>
+    <a class="btn" href="https://wa.me/628568803366" target="_blank" rel="noopener">💬 Hubungi via WhatsApp</a>
+    <p class="built">Built with AI · AI Builder Bootcamp Showcase</p>
+  </div>
+</footer>
+
+<script>
+  // Toggle tema
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  themeBtn.addEventListener('click', () => {
+    const dark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    themeBtn.textContent = dark ? '🌙' : '☀️';
+  });
+
+  // Skenario simulasi chat
+  const scenarios = [
+    {
+      user: 'Saya ingin bikin aplikasi, tapi belum tahu persisnya butuh apa.',
+      bot: 'Tidak masalah! Saya bantu petakan dulu:\n1️⃣ Siapa pengguna utamanya?\n2️⃣ Masalah apa yang ingin diselesaikan?\n3️⃣ Fitur wajib vs. fitur tambahan?\nDari jawaban ini saya susun rekomendasi tools SaaS yang paling sesuai.'
+    },
+    {
+      user: 'Bagaimana cara tim kami mengelola versi kode dan kolaborasi?',
+      bot: 'Saran saya: gunakan GitHub dengan alur branch → pull request → review. Saya bisa bantu membuat struktur repository, aturan branch, dan template PR agar kolaborasi tim lebih rapi.'
+    },
+    {
+      user: 'Tolong buatkan tools dashboard laporan penjualan untuk client saya.',
+      bot: 'Siap! Rencana awalnya:\n✅ Rancang fitur dashboard sesuai kebutuhan client\n✅ Siapkan repository di GitHub\n✅ Bangun prototipe tools SaaS-nya\nSaya kirim draf pertama untuk Anda tinjau bersama client.'
+    }
+  ];
+
+  const body = document.getElementById('chatBody');
+  const buttons = document.querySelectorAll('#scenarios button');
+  let runId = 0;
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const scroll = () => { body.scrollTop = body.scrollHeight; };
+
+  function addMsg(text, type) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + type;
+    el.textContent = text;
+    body.appendChild(el);
+    scroll();
+  }
+
+  async function play(i) {
+    const id = ++runId;
+    buttons.forEach(b => b.disabled = true);
+    body.innerHTML = '';
+    await wait(300);
+    if (id !== runId) return;
+    addMsg(scenarios[i].user, 'user');
+    await wait(600);
+    const typing = document.createElement('div');
+    typing.className = 'msg bot typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(typing);
+    scroll();
+    await wait(1600);
+    typing.remove();
+    addMsg(scenarios[i].bot, 'bot');
+    buttons.forEach(b => b.disabled = false);
+  }
+
+  buttons.forEach(b => b.addEventListener('click', () => play(+b.dataset.i)));
+</script>
+</body>
+</html>
